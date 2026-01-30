@@ -1,14 +1,14 @@
-using UnityEngine; // provides core unity types like transform, sprite, and vector math
+using UnityEngine;
 
-public class EnemyFaceController : MonoBehaviour // swaps enemy face sprites based on player distance with hysteresis
+public class EnemyFaceController : MonoBehaviour
 {
     [Header("references")]
-    [SerializeField] private Transform playerTransform; // reference to the player (ball) transform for distance checks
-    [SerializeField] private SpriteRenderer faceRenderer; // renderer on the Visual child that displays the face sprite
+    [SerializeField] private Transform playerTransform;
+    [SerializeField] private SpriteRenderer faceRenderer;
 
     [Header("faces")]
-    [SerializeField] private Sprite angrySprite; // sprite used when the enemy is "losing" (far away)
-    [SerializeField] private Sprite grinSprite; // sprite used when the enemy is "about to win" (close)
+    [SerializeField] private Sprite angrySprite;
+    [SerializeField] private Sprite grinSprite;
 
     [Header("distance thresholds (hysteresis)")]
     [SerializeField] private float grinEnterDistance = 4f; // distance at/below which we enter grinning state
@@ -16,7 +16,7 @@ public class EnemyFaceController : MonoBehaviour // swaps enemy face sprites bas
 
     private bool isGrinning; // cached state so we don't flip sprites every frame near the boundary
 
-    private void Awake() // runs once when the object is created, before Update
+    private void Awake()
     {
         if (grinExitDistance < grinEnterDistance) // ensures hysteresis is valid (exit must be farther than enter)
         {
@@ -24,12 +24,12 @@ public class EnemyFaceController : MonoBehaviour // swaps enemy face sprites bas
         }
     }
 
-    private void Start() // runs once on the first frame; good place to initialize the correct visual state
+    private void Start()
     {
         UpdateState(forceApply: true); // initializes sprite immediately so it matches the starting distance
     }
 
-    private void Update() // runs every frame to track player distance and update face state when needed
+    private void Update()
     {
         UpdateState(forceApply: false); // evaluates state transitions and applies sprite only on change
     }
@@ -38,7 +38,7 @@ public class EnemyFaceController : MonoBehaviour // swaps enemy face sprites bas
     {
         if (playerTransform == null || faceRenderer == null) return; // prevents null reference errors if not wired
 
-        if (isLocked) return; // prevents flipping when we intentionally lock expression (e.g., on win)
+        if (isLocked) return; // prevents flipping when we intentionally lock expression
 
         float distance = Vector3.Distance(transform.position, playerTransform.position); // computes world-space distance
 
@@ -46,11 +46,11 @@ public class EnemyFaceController : MonoBehaviour // swaps enemy face sprites bas
 
         if (!isGrinning && distance <= grinEnterDistance) // if currently angry and we got close enough, enter grin
         {
-            nextIsGrinning = true; // toggles state to grinning
+            nextIsGrinning = true;
         }
         else if (isGrinning && distance >= grinExitDistance) // if currently grinning and we moved far enough away, exit
         {
-            nextIsGrinning = false; // toggles state back to angry
+            nextIsGrinning = false;
         }
 
         if (forceApply || nextIsGrinning != isGrinning) // only update visuals when state changes or on forced init

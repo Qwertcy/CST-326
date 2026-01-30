@@ -96,26 +96,26 @@ public class PlayerController : MonoBehaviour
 
     private void LoseGame(GameObject collidedEnemy) // handles loss: freeze player and make enemy celebrate
     {
-        gameOver = true; // 1) ends the run so input/physics logic stops in other methods
+        gameOver = true;
 
-        ShowStatus("You lose!"); // 2) shows the lose ui immediately for feedback
+        ShowStatus("You lose!");
 
-        moveInput = Vector2.zero; // 3) clears input so we don't apply any more force
-        rb.linearVelocity = Vector3.zero; // 4) stops linear motion instantly (use rb.linearVelocity if your unity supports it)
-        rb.angularVelocity = Vector3.zero; // 5) stops spinning instantly
-        rb.isKinematic = true; // 6) freezes the rigidbody so physics can't move the player anymore
+        moveInput = Vector2.zero;
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.isKinematic = true; // freezes the rigidbody so physics can't move the player anymore
 
-        GameObject enemyObject = enemy != null ? enemy : collidedEnemy; // 7) chooses a single enemy reference to operate on
-        if (enemyObject == null) return; // 8) exits early if we somehow have no enemy
+        GameObject enemyObject = enemy != null ? enemy : collidedEnemy; // chooses a single enemy reference to operate on
+        if (enemyObject == null) return;
 
-        EnemyMovement movement = enemyObject.GetComponent<EnemyMovement>(); // 9) gets the enemy chase script so we can stop it
-        if (movement != null) movement.enabled = false; // 10) disables chase so enemy stays at the catch position
+        EnemyMovement movement = enemyObject.GetComponent<EnemyMovement>(); // gets the enemy chase script so we can stop it
+        if (movement != null) movement.enabled = false; // disables chase so enemy stays at the catch position
 
-        EnemyFaceController face = enemyObject.GetComponent<EnemyFaceController>(); // 11) gets face controller so we can force expression
-        if (face != null) face.LockToGrin(); // 12) locks grin so distance logic can't switch back to angry
+        EnemyFaceController face = enemyObject.GetComponent<EnemyFaceController>(); // gets face controller so we can force expression
+        if (face != null) face.LockToGrin(); // locks grin so distance logic can't switch back to angry
 
-        EnemyVictoryJump victory = enemyObject.GetComponent<EnemyVictoryJump>(); // 13) gets the victory bounce component
-        if (victory != null) victory.StartCelebration(); // 14) starts bounce last so it captures the current (caught) position
+        EnemyVictoryJump victory = enemyObject.GetComponent<EnemyVictoryJump>();
+        if (victory != null) victory.StartCelebration(); // starts bounce last so it captures the current (caught) position
     }
 
 

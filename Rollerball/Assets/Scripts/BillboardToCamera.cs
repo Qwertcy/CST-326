@@ -1,4 +1,4 @@
-using UnityEngine; // provides access to transform, vector math, quaternions
+using UnityEngine;
 
 public class BillboardToCamera : MonoBehaviour // rotates sprite to face camera
 {
