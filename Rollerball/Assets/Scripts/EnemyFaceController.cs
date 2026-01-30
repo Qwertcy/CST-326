@@ -38,6 +38,8 @@ public class EnemyFaceController : MonoBehaviour // swaps enemy face sprites bas
     {
         if (playerTransform == null || faceRenderer == null) return; // prevents null reference errors if not wired
 
+        if (isLocked) return; // prevents flipping when we intentionally lock expression (e.g., on win)
+
         float distance = Vector3.Distance(transform.position, playerTransform.position); // computes world-space distance
 
         bool nextIsGrinning = isGrinning; // default to current state; we only change it when a threshold is crossed
@@ -57,6 +59,16 @@ public class EnemyFaceController : MonoBehaviour // swaps enemy face sprites bas
             faceRenderer.sprite = isGrinning ? grinSprite : angrySprite; // sets sprite corresponding to the committed state
         }
     }
+
+    private bool isLocked; // when true, distance logic stops changing the face
+
+    public void LockToGrin() // forces grin and prevents further automatic switching
+    {
+        isLocked = true; // disables distance-based switching
+        isGrinning = true; // sets internal state so it stays consistent
+        if (faceRenderer != null) faceRenderer.sprite = grinSprite; // applies grin sprite immediately
+    }
+
 
     private void OnValidate() // runs in editor when values change; helps catch bad thresholds early
     {
