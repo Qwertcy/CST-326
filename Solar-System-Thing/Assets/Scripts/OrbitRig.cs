@@ -1,103 +1,106 @@
-using UnityEngine; // unity engine core types
+using UnityEngine;
 
 [ExecuteAlways] // lets you see the initial placement in edit mode
-public class OrbitRig3D : MonoBehaviour // attach to the orbit pivot object (e.g., Moon_Orbit)
+public class OrbitRig3D : MonoBehaviour 
 {
-    [Header("references")] // inspector grouping label
-    [SerializeField] private Transform body; // the orbiting object (moon/planet), child of this pivot  // reference
+    [Header("references")]
+    [SerializeField] private Transform body; // the orbiting object
 
-    [Header("orbit shape (slightly elliptical)")] // inspector grouping label
-    [SerializeField] private float semiMajorAxis = 25f; // ellipse radius along local x (a)  // shape
-    [SerializeField] private float semiMinorAxis = 23f; // ellipse radius along local z (b)  // shape
+    [Header("orbit shape (slightly elliptical)")]
+    [SerializeField] private float semiMajorAxis = 25f; // ellipse radius along local x (a)
+    [SerializeField] private float semiMinorAxis = 23f; // ellipse radius along local z (b)
 
-    [Header("orbit motion")] // inspector grouping label
-    [SerializeField] private float orbitDegreesPerSecond = 12f; // angular speed around the ellipse (deg/sec)  // speed
-    [SerializeField] private float startPhaseDegrees = 0f; // starting angle on the ellipse (deg)  // initial position
+    [Header("orbit motion")]
+    [SerializeField] private float orbitDegreesPerSecond = 12f; // angular speed around the ellipse
+    [SerializeField] private float startPhaseDegrees = 0f; // starting angle on the ellipse
 
-    [Header("orbit plane start (this sets the starting 3d direction)")] // inspector grouping label
-    [SerializeField] private Vector3 initialPlaneEuler = Vector3.zero; // initial orbit plane rotation in degrees (x,y,z)  // start direction
-    [SerializeField] private float startPrecessionAngleA = 0f; // starting angle for precession A in degrees  // start direction
-    [SerializeField] private float startPrecessionAngleB = 0f; // starting angle for precession B in degrees  // start direction
+    [Header("orbit plane start (this sets the starting 3d direction)")]
+    [SerializeField] private Vector3 initialPlaneEuler = Vector3.zero; // initial orbit plane rotation in degrees (x,y,z)
+    [SerializeField] private float startPrecessionAngleA = 0f;
+    [SerializeField] private float startPrecessionAngleB = 0f; 
 
-    [Header("3d veer (orbit plane slowly rotates)")] // inspector grouping label
+    [Header("3d veer (orbit plane slowly rotates)")]
     [SerializeField] private Vector3 precessionAxisA = Vector3.up; // first axis that the orbit plane rotates around  // plane drift
-    [SerializeField] private float precessionDegPerSecA = 0.2f; // speed of plane rotation around axis A (deg/sec)  // plane drift
-    [SerializeField] private Vector3 precessionAxisB = Vector3.right; // second axis for additional drift (helps "draw a sphere")  // plane drift
-    [SerializeField] private float precessionDegPerSecB = 0.08f; // speed of plane rotation around axis B (deg/sec)  // plane drift
+    [SerializeField] private float precessionDegPerSecA = 0.2f; // speed of plane rotation around axis A   // plane drift
+    [SerializeField] private Vector3 precessionAxisB = Vector3.right; // second axis for additional drift  // plane drift
+    [SerializeField] private float precessionDegPerSecB = 0.08f; // speed of plane rotation around axis B  // plane drift
 
-    [Header("spin (self rotation)")] // inspector grouping label
-    [SerializeField] private float spinDegreesPerSecond = 30f; // how fast the body spins around itself (deg/sec)  // spin
-    [SerializeField] private Vector3 spinAxis = Vector3.up; // local axis for body spin  // spin
+    [Header("spin (self rotation)")] 
+    [SerializeField] private float spinDegreesPerSecond = 30f;
+    [SerializeField] private Vector3 spinAxis = Vector3.up; // local axis for body spin
 
-    [Header("editor behavior")] // inspector grouping label
-    [SerializeField] private bool previewInEditMode = true; // updates placement in edit mode without animating  // editor
+    [Header("editor behavior")] 
+    [SerializeField] private bool previewInEditMode = true; // updates placement in edit mode without animating 
 
     private float orbitAngleDeg; // accumulated orbit angle theta(t) in degrees  // state
     private float precessionAngleDegA; // accumulated plane rotation angle around axis A  // state
     private float precessionAngleDegB; // accumulated plane rotation angle around axis B  // state
 
-    void OnEnable() // called when enabled (also in edit mode due to executealways)  // unity lifecycle
+    void OnEnable()
     {
-        ResetState(); // initialize state from inspector values  // init
-        ApplyPose(); // place body immediately so you see it right away  // init
+        ResetState(); // init
+        ApplyPose(); // place body immediately
     }
 
-    void OnValidate() // called when inspector values change in edit mode  // unity lifecycle
+    void OnValidate() // runs in edit mode whenever serialized fields change, scripts recompile, or component is added/loaded
     {
-        if (!previewInEditMode) return; // user opted out of edit-time preview updates  // guard
-        if (Application.isPlaying) return; // avoid fighting runtime animation while playing  // guard
-        ResetState(); // keep preview consistent with inspector values  // init
-        ApplyPose(); // refresh placement in the scene view  // preview
+        if (!previewInEditMode) return;
+        if (Application.isPlaying) return; // prevents the editor from fighting Update() logic
+        ResetState(); // re-initialize internal runtime variables from inspector values so the scene preview matches the configuration; prevents stale angle accumulators from previous edits
+        ApplyPose(); // immediately recompute and apply the object's orbit position to visually see the effect of inspector edits in the scene view
     }
 
-    void Update() // called every frame  // unity lifecycle
+    void Update()
     {
-        if (body == null) return; // no body assigned, nothing to move/spin  // safety
+        if (body == null) return;
 
-        if (!Application.isPlaying) // if not playing, don't animate  // guard
+        if (!Application.isPlaying) // guard clause for edit mode
         {
-            if (previewInEditMode) ApplyPose(); // keep static preview correct in edit mode  // preview
-            return; // exit before doing time-based motion  // guard
+            if (previewInEditMode) ApplyPose(); // if preview is enabled, we still snap the body into the correct pose so the scene stays consistent with inspector values 
+            return; // stops here so we do not advance orbit angles using deltaTime in edit mode 
         }
 
-        float dt = Time.deltaTime; // seconds since last frame  // timing
+        float dt = Time.deltaTime;
 
-        orbitAngleDeg += orbitDegreesPerSecond * dt; // advance orbit angle smoothly forward  // orbit
-        precessionAngleDegA += precessionDegPerSecA * dt; // advance plane drift A smoothly forward  // plane drift
-        precessionAngleDegB += precessionDegPerSecB * dt; // advance plane drift B smoothly forward  // plane drift
+        orbitAngleDeg += orbitDegreesPerSecond * dt; // Euler integration for angular velocity: angle(t) = angle(t-1) + speed * dt
+        precessionAngleDegA += precessionDegPerSecA * dt; // same integration idea, but for orbit-plane rotation around axis A; this is the slow veer that makes paths wander in 3D over time
+        precessionAngleDegB += precessionDegPerSecB * dt; // using two distinct axes/speeds gives richer 3D coverage (avoids everything staying in one band)
 
-        ApplyPose(); // compute and apply new 3d position  // placement
+        ApplyPose(); // after updating the angles, we compute the new position from the orbit math and assign it
 
-        float spinStep = spinDegreesPerSecond * dt; // degrees to spin this frame  // timing
-        body.Rotate(spinAxis, spinStep, Space.Self); // spin the body around its own axis  // spin
+        float spinStep = spinDegreesPerSecond * dt; // computes this frame's local spin amount in degrees
+        body.Rotate(spinAxis, spinStep, Space.Self); // rotates the body around its own local axis; Space.Self uses the body's local coordinate system (so spin axis follows the body if it tilts)
     }
 
-    private void ResetState() // initializes runtime accumulators from inspector values  // helper
+    private void ResetState() // helper method: re-syncs internal accumulators and validates inspector data; called from OnEnable/OnValidate so edits don't leave the object in a weird state
     {
-        semiMajorAxis = Mathf.Max(0.001f, semiMajorAxis); // prevent degenerate ellipse  // validation
-        semiMinorAxis = Mathf.Max(0.001f, semiMinorAxis); // prevent degenerate ellipse  // validation
-        orbitAngleDeg = startPhaseDegrees; // start orbit at chosen phase  // init
-        precessionAngleDegA = startPrecessionAngleA; // apply user-chosen starting plane rotation component A  // init
-        precessionAngleDegB = startPrecessionAngleB; // apply user-chosen starting plane rotation component B  // init
+        semiMajorAxis = Mathf.Max(0.001f, semiMajorAxis); // clamp: prevents a=0 which would collapse ellipse into a line/point; 0.001f avoids divide-by-zero-ish degenerate geometry and NaNs
+        semiMinorAxis = Mathf.Max(0.001f, semiMinorAxis); // same clamp for b axis; keeps trig results meaningful and ensures the orbit remains drawable
+
+        orbitAngleDeg = startPhaseDegrees; // sets the orbit's starting parameter angle (theta) to the inspector-defined phase; this controls where on the ellipse the body begins
+        precessionAngleDegA = startPrecessionAngleA; // sets initial plane rotation around axis A; lets each planet start with a different 3D lane even before time advances
+        precessionAngleDegB = startPrecessionAngleB; // sets initial plane rotation around axis B; combined with A, this provides a broad range of starting orientations
     }
 
-    private void ApplyPose() // computes position on an ellipse, then rotates that ellipse plane in 3d  // helper
+    private void ApplyPose() // core geometry function: (1) compute point on ellipse in a base plane, (2) build a 3D rotation representing orbit-plane orientation, (3) rotate point into 3D and apply it
     {
-        Vector3 axisA = precessionAxisA.sqrMagnitude > 0.0001f ? precessionAxisA.normalized : Vector3.up; // safe axis A  // validation
-        Vector3 axisB = precessionAxisB.sqrMagnitude > 0.0001f ? precessionAxisB.normalized : Vector3.right; // safe axis B  // validation
+        Vector3 axisA = precessionAxisA.sqrMagnitude > 0.0001f ? precessionAxisA.normalized : Vector3.up; // choose a safe rotation axis: if (0,0,0), normalized would be invalid; sqrMagnitude avoids expensive sqrt
+        Vector3 axisB = precessionAxisB.sqrMagnitude > 0.0001f ? precessionAxisB.normalized : Vector3.right; // same safety for axis B; fallback axes provide deterministic behavior rather than silently breaking
 
-        float theta = orbitAngleDeg * Mathf.Deg2Rad; // orbit parameter angle in radians  // trig
+        float theta = orbitAngleDeg * Mathf.Deg2Rad; // trig functions take radians, not degrees
 
-        float x0 = Mathf.Cos(theta) * semiMajorAxis; // ellipse x coordinate  // shape
-        float z0 = Mathf.Sin(theta) * semiMinorAxis; // ellipse z coordinate  // shape
-        Vector3 inPlane = new Vector3(x0, 0f, z0); // point on ellipse in a flat reference plane  // point
+        float x0 = Mathf.Cos(theta) * semiMajorAxis; // parametric ellipse equation: x = a cos(theta); semiMajorAxis is a; cos controls left/right along ellipse
+        float z0 = Mathf.Sin(theta) * semiMinorAxis; // parametric ellipse equation: z = b sin(theta); semiMinorAxis is b; sin controls forward/back along ellipse
+        Vector3 inPlane = new Vector3(x0, 0f, z0); // base orbit is defined in the local XZ plane (y=0); we intentionally start flat so we can later rotate the plane into any 3D orientation
 
-        Quaternion qStart = Quaternion.Euler(initialPlaneEuler); // sets the starting orbit plane orientation  // start direction
-        Quaternion qA = Quaternion.AngleAxis(precessionAngleDegA, axisA); // rotate around axis A  // plane rotation
-        Quaternion qB = Quaternion.AngleAxis(precessionAngleDegB, axisB); // rotate around axis B  // plane rotation
-        Quaternion planeRot = qStart * qA * qB; // combine rotations into final orbit plane rotation  // plane rotation
+        Quaternion qStart = Quaternion.Euler(initialPlaneEuler); // quaternion from euler: defines initial plane orientation; euler is convenient for authors, quaternion is stable for composition and avoids gimbal issues during accumulation
+        Quaternion qA = Quaternion.AngleAxis(precessionAngleDegA, axisA); // build a rotation of angle A about axisA; AngleAxis is mathematically "rotate around arbitrary axis" and is ideal for precession-like motion
+        Quaternion qB = Quaternion.AngleAxis(precessionAngleDegB, axisB); // second axis rotation; by using two independent rotations, the plane's normal vector can explore more directions over time
 
-        Vector3 tilted = planeRot * inPlane; // rotate the orbit plane in 3d so y becomes nonzero  // 3d orbit
-        body.localPosition = tilted; // assign local position relative to the orbit pivot  // placement
+        Quaternion planeRot = qStart * qA * qB; // quaternion composition: multiplication applies rotations in sequence (rightmost happens first in effect); order matters because 3D rotations do not commute
+
+        Vector3 tilted = planeRot * inPlane; // apply rotation to the position vector: quaternion-vector multiplication rotates the vector; this turns a flat ellipse point into a 3D orbit point (y becomes nonzero)
+        body.localPosition = tilted; // assign in local space of the orbit pivot object; localPosition means the pivot stays at earth center and we move only the body relative to that center (clean hierarchy design)
     }
+
 }

@@ -1,11 +1,11 @@
-using UnityEngine; // unity core types like transform, vector3, quaternion, time
-using UnityEngine.InputSystem; // new input system access (keyboard.current, key states)
+using UnityEngine; 
+using UnityEngine.InputSystem; 
 
 public class OrbitRigTour : MonoBehaviour // attach to the orbit pivot (camera rig parent)
 {
     [Header("references")]
-    [SerializeField] private Transform cameraBody; // assign main camera transform (child or referenced)  // camera ref
-    [SerializeField] private Transform lookTarget; // assign earth (or center object)  // look target
+    [SerializeField] private Transform cameraBody;
+    [SerializeField] private Transform lookTarget;
 
     [Header("orbit shape")]
     [SerializeField] private float semiMajorAxis = 120f; // ellipse radius along local x  // orbit size
@@ -33,41 +33,41 @@ public class OrbitRigTour : MonoBehaviour // attach to the orbit pivot (camera r
     private bool overheadLocked; // whether space lock is currently active  // state
     private Vector3 lastOrbitCamWorldPos; // last computed orbit camera world position (for smooth return)  // state
 
-    void Awake() // runs once when object becomes active  // lifecycle
+    void Awake()
     {
         if (cameraBody == null || lookTarget == null) return; // we need both references to work  // safety
 
-        transform.localRotation = Quaternion.Euler(initialPlaneEuler); // set initial orbit plane orientation  // setup
+        transform.localRotation = Quaternion.Euler(initialPlaneEuler); // initial orbit plane orientation  // setup
         orbitAngleDeg = Random.Range(0f, 360f); // random starting angle so things aren't aligned  // setup
 
         lastOrbitCamWorldPos = cameraBody.position; // initialize return position safely  // setup
     }
 
-    void Update() // runs every frame  // lifecycle
+    void Update()
     {
         handleInputNewSystem(); // poll keyboard using new input system  // input
 
         if (!overheadLocked) // only advance the orbit when we're not locked overhead  // mode
         {
-            updateOrbitState(); // advance angles forward in time  // orbit
-            lastOrbitCamWorldPos = computeOrbitCameraWorldPos(); // compute where orbit wants camera to be  // orbit
+            updateOrbitState(); // advances angles forward in time  // orbit
+            lastOrbitCamWorldPos = computeOrbitCameraWorldPos(); // computes where orbit wants camera to be  // orbit
         }
 
-        updateCameraPose(); // apply either orbit-follow or overhead lock pose  // pose
+        updateCameraPose(); // applies either orbit-follow or overhead lock pose  // pose
     }
 
     void handleInputNewSystem() // reads space key using the new input system  // input helper
     {
         if (Keyboard.current == null) return; // can be null on some platforms or before input initializes  // safety
 
-        if (Keyboard.current.spaceKey.wasPressedThisFrame) // space press event (edge)  // input
+        if (Keyboard.current.spaceKey.wasPressedThisFrame) // space press event  // input
         {
-            overheadLocked = true; // enter overhead mode  // state
+            overheadLocked = true;
         }
 
-        if (Keyboard.current.spaceKey.wasReleasedThisFrame) // space release event (edge)  // input
+        if (Keyboard.current.spaceKey.wasReleasedThisFrame) // space release event  // input
         {
-            overheadLocked = false; // exit overhead mode and return to orbit  // state
+            overheadLocked = false;
         }
     }
 
@@ -101,9 +101,9 @@ public class OrbitRigTour : MonoBehaviour // attach to the orbit pivot (camera r
         if (overheadLocked) // overhead mode (space held)  // mode
         {
             Vector3 overheadPos =
-                lookTarget.position + // start at target position  // base
-                Vector3.up * overheadHeight + // move straight up above target  // height
-                transform.forward * overheadDistance; // add small forward offset for nicer framing  // offset
+                lookTarget.position + // starts at target position  // base
+                Vector3.up * overheadHeight + // moves straight up above target  // height
+                transform.forward * overheadDistance; // adds small forward offset for nicer framing  // offset
 
             cameraBody.position = Vector3.Lerp(cameraBody.position, overheadPos, Time.deltaTime * lockLerpSpeed); // smooth approach  // smoothing
             cameraBody.LookAt(lookTarget.position + lookOffset, Vector3.up); // keep camera aimed at target  // aim

@@ -1,6 +1,6 @@
 using System.IO; // provides file writing utilities for saving pngs
-using UnityEditor; // enables editorwindow and assetdatabase usage
-using UnityEngine; // provides texture2d, color, math, gui, etc.
+using UnityEditor; 
+using UnityEngine; 
 
 public class FlatEarthProjectorWindow : EditorWindow // creates a custom editor window tool
 {
