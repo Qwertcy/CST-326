@@ -12,26 +12,8 @@ public class Paddle : MonoBehaviour
         float min = collider.bounds.min.z;
     }
 
-    //// Update is called once per frame
-    //void Update()
-    //{
-    //    float movementAxis = Input.GetAxis("Awesome Left Paddle");
-    //    //Vector3 force = new Vector3(0f, 0f, 1f) * movementAxis * paddleForce;
-
-    //    Transform paddleTransform = GetComponent<Transform>();
-
-    //    Vector3 newPosition = paddleTransform.position + new Vector3(0f, 0f, movementAxis * maxPaddleSpeed * Time.deltaTime);
-    //    newPosition.z = Mathf.Clamp(newPosition.z, -2.2f, 2.2f);
-
-    //    paddleTransform.position = newPosition;
-
-    //    //Rigidbody rb = GetComponent<Rigidbody>();
-    //    //rb.AddForce(force, ForceMode.Force);
-
-    //}
-
     [Header("Input Axis Name")]
-    public string inputAxis = "Awesome Left Paddle"; // or "VerticalRightPaddle"
+    public string inputAxis = "Awesome Paddle"; // or "VerticalRightPaddle"
 
     [Header("Movement Settings")]
     public float speed = 5f;
