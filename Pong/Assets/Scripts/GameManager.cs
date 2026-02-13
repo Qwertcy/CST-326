@@ -20,6 +20,9 @@ public class GameManager : MonoBehaviour // manages scoring, ui updates, and goa
     [SerializeField] private AudioClip goalClip;
     [SerializeField] private float goalVolume = 1.0f;
 
+    [Header("Camera Shake")]
+    [SerializeField] private CameraShake cameraShake;
+
     private AudioSource audioSource;
 
     private void Awake()
@@ -55,6 +58,7 @@ public class GameManager : MonoBehaviour // manages scoring, ui updates, and goa
 
         UpdateScoreTexts();
         PlayGoalSound();
+        if (cameraShake != null) cameraShake.Shake(); // triggers camera shake on scoring
         CancelInvoke(nameof(ResetBall)); // prevents multiple overlapping resets if ball re-triggers quickly
         Invoke(nameof(ResetBall), resetDelaySeconds); // resets after a short delay to avoid masking the goal sound
     }
