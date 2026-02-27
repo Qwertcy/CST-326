@@ -7,22 +7,15 @@ public class PlayerDeathTrigger : MonoBehaviour
     private void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
-        if (gameManager == null)
-        {
-            Debug.LogError("No GameManager found in the scene. Please add one.");
-        }
+        if (gameManager == null) Debug.LogError("No GameManager found");
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Death"))
-        {
-            Debug.Log("Player fell into a pit!");
+        if (!other.CompareTag("Death")) return;
 
-            if (gameManager != null)
-            {
-                gameManager.EndGame();
-            }
-        }
+        Debug.Log("Player hit a death trigger!");
+
+        if (gameManager != null) gameManager.FailLevel("fell");
     }
 }

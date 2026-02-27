@@ -9,6 +9,7 @@ TagManager:
   - Rock
   - Question
   - Death
+  - Goal
   layers:
   - Default
   - TransparentFX

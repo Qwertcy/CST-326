@@ -2,123 +2,120 @@
 using System.IO;
 using UnityEngine;
 
-/*
- * This script is responsible for reading a level layout from a text file and constructing the level
- * in a Unity scene by instantiating block GameObjects. The level file should be placed in the
- * Resources folder, and each line in the file represents a row of blocks (with the bottom row processed first).
- *
- * WHAT YOU NEED TO DO:
- * 1. In the foreach loop that iterates over each character (letter) in the current row, determine
- *    which type of block to create based on the letter (e.g., use 'R' for rock, 'B' for brick, etc.).
- *
- * 2. Instantiate the correct prefab (rockPrefab, brickPrefab, questionBoxPrefab, stonePrefab) corresponding
- *    to the letter.
- *
- * 3. Calculate the position for the new block GameObject using the current 'row' value and its column index.
- *    - You will likely need to maintain a separate column counter as you iterate through the characters.
- *
- * 4. Set the instantiated block’s parent to 'environmentRoot' to keep the hierarchy organized.
- *
- * ADDITIONAL NOTES:
- * - The level reloads when the player presses the 'R' key, which clears all blocks under environmentRoot
- *   and then re-parses the level file.
- * - Ensure that the level file's name (without the extension) matches the 'filename' variable.
- *
- * By completing these TODOs, you will enable the level parser to dynamically create and position
- * the blocks based on the level file data.
- */
-
 public class LevelParser : MonoBehaviour
 {
-    public string filename;
-    public Transform environmentRoot;
+    public string filename; // file name inside assets/resources without .txt
+    public Transform environmentRoot; // parent transform for spawned tiles
 
     [Header("Block Prefabs")]
-    public GameObject rockPrefab;
-    public GameObject brickPrefab;
-    public GameObject questionBoxPrefab;
-    public GameObject stonePrefab;
+    public GameObject rockPrefab; // spawned for 'b'
+    public GameObject brickPrefab; // spawned for 'x'
+    public GameObject questionBoxPrefab; // spawned for '?'
+    public GameObject stonePrefab; // spawned for 's'
+    public GameObject waterPrefab; // spawned for 'w'
+    public GameObject goalPrefab; // spawned for 'g'
 
-    public GameObject testPrefab;
+    [Header("Parsing Settings")]
+    public int tabWidth = 4; // how many spaces a tab should count as when converting '\t' to spaces
 
-    // --------------------------------------------------------------------------
     void Start()
     {
-        LoadLevel();
+        LoadLevel(); // builds the level from the text file
     }
 
-    // --------------------------------------------------------------------------
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.R)) //r to reload level
+        {
             ReloadLevel();
+        }
     }
 
-    // --------------------------------------------------------------------------
     void LoadLevel()
     {
-        string fileToParse = $"{Application.dataPath}/Resources/{filename}.txt";
+        string fileToParse = $"{Application.dataPath}/Resources/{filename}.txt"; // absolute path
         Debug.Log($"Loading level file: {fileToParse}");
 
-        Stack<string> levelRows = new Stack<string>();
+        Stack<string> levelRows = new Stack<string>(); // stack reverses order so last file line becomes top row
 
-        // Get each line of text representing blocks in our level
-        using (StreamReader sr = new(fileToParse))
+        using (StreamReader sr = new StreamReader(fileToParse))
         {
-            while (sr.ReadLine() is { } line)
-                levelRows.Push(line);
-            sr.Close();
+            while (sr.ReadLine() is { } rawLine)
+            {
+                string normalized = NormalizeLinePreserveLeadingSpaces(rawLine); // keeps leading spaces but fixes tabs/trailing junk
+                levelRows.Push(normalized); // pushing so we build from bottom row upward
+            }
         }
 
-        // Use this variable in the todo code!!
-        int row = 0;
+        int row = 0; // world y row index starting from bottom
 
-        // Go through the rows from bottom to top
         while (levelRows.Count > 0)
         {
             string currentLine = levelRows.Pop();
-
             char[] letters = currentLine.ToCharArray();
-            for (int col = 0; col < letters.Length; ++col)
+
+            for (int col = 0; col < letters.Length; col++)
             {
-                // Todo - Instantiate a new GameObject that matches the type specified by letter
-                // Todo - Position the new GameObject at the appropriate location by using row and column
-                // Todo - Parent the new GameObject under levelRoot
-                if (letters[col] == 'x')
+                char tile = letters[col];
+
+                if (tile == ' ') continue;
+
+                Vector3 pos = new Vector3(col + 0.5f, row + 0.5f, 0f); // centers tile within 1x1 grid cell
+
+                if (tile == 'x') // brick
                 {
-                    Vector3 pos = new Vector3(col + 0.5f, row + 0.5f, 0f);
-                    GameObject newObj = Instantiate(brickPrefab, environmentRoot);
-                    newObj.transform.position = pos;
+                    Spawn(brickPrefab, pos);
                 }
-                if (letters[col] == 's')
+                else if (tile == 's') // stone
                 {
-                    Vector3 pos = new Vector3(col + 0.5f, row + 0.5f, 0f);
-                    GameObject newObj = Instantiate(stonePrefab, environmentRoot);
-                    newObj.transform.position = pos;
+                    Spawn(stonePrefab, pos);
                 }
-                if (letters[col] == 'b')
+                else if (tile == 'b') // rock
                 {
-                    Vector3 pos = new Vector3(col + 0.5f, row + 0.5f, 0f);
-                    GameObject newObj = Instantiate(rockPrefab, environmentRoot);
-                    newObj.transform.position = pos;
+                    Spawn(rockPrefab, pos);
                 }
-                if (letters[col] == '?')
+                else if (tile == '?') // question
                 {
-                    Vector3 pos = new Vector3(col + 0.5f, row + 0.5f, 0f);
-                    GameObject newObj = Instantiate(questionBoxPrefab, environmentRoot);
-                    newObj.transform.position = pos;
+                    Spawn(questionBoxPrefab, pos);
+                }
+                else if (tile == 'w') // water
+                {
+                    Spawn(waterPrefab, pos);
+                }
+                else if (tile == 'g') // goal
+                {
+                    Spawn(goalPrefab, pos);
                 }
 
+                else
+                {
+                }
             }
+
             row++;
         }
     }
 
-    // --------------------------------------------------------------------------
-    void ReloadLevel()
+    string NormalizeLinePreserveLeadingSpaces(string rawLine) // normalizes input while preserving indentation-based level layout
     {
-        foreach (Transform child in environmentRoot)
-           Destroy(child.gameObject);
+        if (rawLine == null) return string.Empty; // safety for unexpected null
+        string noTabs = rawLine.Replace("\t", new string(' ', tabWidth)); // converts tabs into fixed-width spaces to prevent misalignment
+        return noTabs.TrimEnd('\r', ' ', '\t'); // removes trailing whitespace that only adds invisible extra columns
+    }
+
+    void Spawn(GameObject prefab, Vector3 position) // helper for consistent instantiation
+    {
+        if (prefab == null) return; // prevents null reference if prefab not assigned
+        GameObject obj = Instantiate(prefab, environmentRoot); // instantiates and parents under environmentRoot
+        obj.transform.position = position; // places at grid-derived world position
+    }
+
+    void ReloadLevel() // clears existing tiles then rebuilds
+    {
+        foreach (Transform child in environmentRoot) // iterate all spawned children
+        {
+            Destroy(child.gameObject);
+        }
 
         LoadLevel();
     }

@@ -47,12 +47,11 @@ public class CharacterController : MonoBehaviour
 
         // ground check using raycast
         float castDistance = col.bounds.extents.y + 0.05f; // slightly below collider bottom
-        Vector3 startPoint = transform.position;
-        isGrounded = Physics.Raycast(startPoint, Vector3.down, castDistance); // checks if ground is below
+        Vector3 startPoint = col.bounds.center;
+        bool groundHit = Physics.Raycast(startPoint, Vector3.down, castDistance); // true if something is within cast distance below
+        isGrounded = groundHit && rb.linearVelocity.y <= 0.01f; // only grounded if we are not moving upward
+        Debug.DrawLine(startPoint, startPoint + castDistance * Vector3.down, isGrounded ? Color.green : Color.red);
 
-        Debug.DrawLine(startPoint, startPoint + castDistance * Vector3.down, isGrounded ? Color.green : Color.red); // visual debug line
-
-        
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             jumpHoldTimer = maxJumpHoldTime; // resets boost timer
@@ -75,12 +74,10 @@ public class CharacterController : MonoBehaviour
         }
 
         // landing detection
-        if (isGrounded && inAir)
+        if (isGrounded && inAir && rb.linearVelocity.y <= 0.01f) // only lands when grounded AND not rising
         {
             inAir = false;
-
-            if (animator != null)
-                animator.SetBool("IsJumping", false);
+            if (animator != null) animator.SetBool("IsJumping", false);
         }
 
         // smooth deceleration when stopping

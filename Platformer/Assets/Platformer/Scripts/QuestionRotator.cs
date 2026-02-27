@@ -16,7 +16,7 @@ public class QuestionRotator : MonoBehaviour
         instanceMaterial.mainTextureOffset = Vector2.zero; // ensures clean starting state
     }
 
-    void Update() // runs every frame.
+    void Update()
     {
         float frameIndex = Mathf.Floor(Time.time * framesPerSecond) % totalFrames; // converts time into integer frame index 0–4 (wraps around with modulo)
         float yOffset = frameIndex * stepSize; // calculates exact snapped offset (0, 0.2, 0.4, 0.6, 0.8).
