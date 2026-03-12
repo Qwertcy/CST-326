@@ -9,7 +9,9 @@ public class UFO : MonoBehaviour
     private int scoreValue => Random.Range(20, 51) * 10;
 
     public AudioClip runningSound;
+    public AudioClip deathSound;
     private AudioSource _audioSource;
+
 
     private void Awake()
     {
@@ -64,6 +66,7 @@ public class UFO : MonoBehaviour
     {
         if (other.gameObject.layer == LayerMask.NameToLayer("Laser"))
         {
+            AudioSource.PlayClipAtPoint(deathSound, transform.position, 1.4f);
             ScoreManager.instance.AddPoints(scoreValue);
             this.gameObject.SetActive(false);
 

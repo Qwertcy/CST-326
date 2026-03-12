@@ -28,18 +28,34 @@ public class Player : MonoBehaviour
     }
     void Update()
     {
+        float horizontal = 0f; // stores the horizontal movement direction for this frame
+
         if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
-            {
-            this.transform.position += Vector3.left * speed * Time.deltaTime;
-        } else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
         {
-            this.transform.position += Vector3.right * speed * Time.deltaTime;
+            horizontal = -1f;
+        }
+        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+        {
+            horizontal = 1f;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space)) {
+        Vector3 position = transform.position;
+
+        position += Vector3.right * horizontal * speed * Time.deltaTime;
+
+        float cameraHeight = Camera.main.orthographicSize * 2f;
+        float cameraWidth = cameraHeight * Camera.main.aspect;
+
+        float halfWidth = cameraWidth / 2f; // half the width are the left and right camera bounds
+
+        position.x = Mathf.Clamp(position.x, -halfWidth + 0.5f, halfWidth - 0.5f); // clamps player x position so it cannot leave the screen 0.5 is padding
+
+        transform.position = position;
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
             Shoot();
         }
-
     }
 
     private void Shoot()
