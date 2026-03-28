@@ -14,39 +14,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentVersion: 1.01
   subtype: kitchenchaos
-  lastShownTimestamp: 1773970371
+  lastShownTimestamp: 1774665643
   lastUpdateResponse:
-    version: 1.00
+    version: 1.01
     versionUrl: https://unitycodemonkey.com
-  checkedLastUpdateTimestamp: 1773970371
+  checkedLastUpdateTimestamp: 1774665643
   lastQOTDResponse:
-    questionId: 163
-    questionText: What is the purpose of Unity Hub?
-    answerA: Provide a space for the community to interact
-    answerB: Manage different Unity versions and Projects
-    answerC: Dashboard for Unity services
+    questionId: 285
+    questionText: Where are PlayerPrefs actually saved on Windows?
+    answerA: Game install folder
+    answerB: User data
+    answerC: Registry
     answerD: 
     answerE: 
-  lastQotdTimestamp: 1773970371
+  lastQotdTimestamp: 1774665643
   lastDynamicHeaderResponse:
-    topImageUrl: https://codemonkeyexternal.blob.core.windows.net/external/Misc/humbleBundleSyntyMar25.png
-    topText: Make ANY game with these awesome Assets! (96% OFF ENDS SOON!)
+    topImageUrl: https://codemonkeyexternal.blob.core.windows.net/external/Misc/humbleBundleMar26Synty.png
+    topText: Synty Bundle! Awesome Low Poly Sci-Fi Assets and Anims!
     topLink: humblebundle
-    bottomText: Learn Unity DOTS for MASSIVE Performance Boosts! (and make an RTS)
-    bottomLink: dotscourse
-  lastDynamicHeaderTimestamp: 1773970371
+    bottomText: My 10+ Years of C# Knowledge in 1 Course!
+    bottomLink: csharpcourse
+  lastDynamicHeaderTimestamp: 1774665643
   websiteLatestMessage:
     text: <a href="https://cmonkey.co/freecourses">Check out all my FREE courses!
       Click here!</a>
-  websiteLatestMessageTimestamp: 1773970371
+  websiteLatestMessageTimestamp: 1774665643
   websiteLatestVideos:
     videos:
-    - youTubeId: ZIg7VoD9ptI
-      title: The FUTURE of Unity in 2025 and BEYOND!
-    - youTubeId: W_XOZAWJF24
-      title: I made the MOST PROFITABLE Game as a Test!
-    - youTubeId: J0KMvH-yFmA
-      title: TOP 10 NEW Games, Made with Unity! (FEBRUARY 2025)
-    - youTubeId: DOSLOa7cnoE
-      title: I SHOULD have done this a long time ago, and YOU too!
-  websiteLatestVideosTimestamp: 1773970371
+    - youTubeId: Ng0VH0SmqRo
+      title: I've wanted to do this for YEARS!
+    - youTubeId: iHOtW9ErfNw
+      title: Game Development is a LIE!
+    - youTubeId: gkr05lfpMbM
+      title: TOP 10 FREE NEW Assets MARCH 2026!
+    - youTubeId: eC89Ypzj5vU
+      title: Unity 6.4 is OUT - What's NEW?!
+  websiteLatestVideosTimestamp: 1774665643

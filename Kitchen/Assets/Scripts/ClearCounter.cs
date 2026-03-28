@@ -1,55 +1,59 @@
 using UnityEngine;
 
-public class ClearCounter : MonoBehaviour
+public class ClearCounter : BaseCounter
 {
     [SerializeField] private KitchenObjectSO kitchenObjectSO;
-    [SerializeField] private Transform counterTopPoint;
-    [SerializeField] private ClearCounter secondClearCounter;
-    [SerializeField] private bool testing;
 
-    private KitchenObject kitchenObject;
-
-    private void Update()
+    public override void Interact(Player player)
     {
-        if(testing && Input.GetKeyDown(KeyCode.T))
+        if (!HasKitchenObject())
         {
-            if (kitchenObject == null)
+            //there is no kitchenobject here
+            if (player.HasKitchenObject())
             {
-                kitchenObject.SetClearCounter(secondClearCounter);
+                //player is carrying something
+                player.GetKitchenObject().SetKitchenObjectParent(this);
+            }
+            else
+            {
+                //player not carrying anything
+            }
+        }
+        else
+        {
+            //there is a kitchenobject here
+            if (player.HasKitchenObject())
+            {
+                //player is carrying something
+                if(player.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject))
+                {
+                    // player holding plate
+                    
+                    if (plateKitchenObject.TryAddIngredient(GetKitchenObject().GetKitchenObjectSO()))
+                    {
+                        GetKitchenObject().DestroySelf();
+                    }
+                    
+                }
+                else
+                {
+                    //player is not carrying plate but somethiung else
+                    if(GetKitchenObject().TryGetPlate(out plateKitchenObject))
+                    {
+                        //counnter is holding a plate
+                        if (plateKitchenObject.TryAddIngredient(player.GetKitchenObject().GetKitchenObjectSO()))
+                        {
+                            player.GetKitchenObject().DestroySelf();
+                        }
+                    }
+                }
+            }
+            else
+            {
+                //player is not carrying something
+                GetKitchenObject().SetKitchenObjectParent(player);
             }
         }
     }
-    public void Interact()
-    {
-        if(kitchenObject == null)
-        {
-        Debug.Log("Interact!");
-        Transform kitchenObjectTransform = Instantiate(kitchenObjectSO.prefab, counterTopPoint);
-        kitchenObjectTransform.GetComponent<KitchenObject>().SetClearCounter(this);
-        }else
-        {
-            Debug.Log(kitchenObject.GetClearCounter());
-        }
-    }
 
-    public Transform GetKitchenObjectFollowTransform()
-    {
-        return counterTopPoint;
-    }
-    public void SetKitchenObject(KitchenObject kitchenObject)
-    {
-        this.kitchenObject = kitchenObject;
-    }
-    public KitchenObject GetKitchenObject()
-    {
-        return kitchenObject;
-    }
-    public void ClearKitchenObject()
-    {
-        kitchenObject = null;
-    }
-    public bool HasKitchenObject()
-    {
-        return (kitchenObject != null);
-    }
 }
