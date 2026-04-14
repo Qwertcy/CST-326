@@ -1,0 +1,16 @@
+{
+    "name": "WarcraftChess.Runtime.Rules",
+    "rootNamespace": "",
+    "references": [
+        "GUID:d5b16a2522f11db47adc7ade1f4a813d"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

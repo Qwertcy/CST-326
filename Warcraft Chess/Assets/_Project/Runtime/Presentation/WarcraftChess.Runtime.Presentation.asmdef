@@ -1,0 +1,18 @@
+{
+    "name": "WarcraftChess.Runtime.Presentation",
+    "rootNamespace": "",
+    "references": [
+        "GUID:d5b16a2522f11db47adc7ade1f4a813d",
+        "GUID:f1e907667aee2a24e85a8fb40b27021e",
+        "GUID:75469ad4d38634e559750d17036d5f7c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

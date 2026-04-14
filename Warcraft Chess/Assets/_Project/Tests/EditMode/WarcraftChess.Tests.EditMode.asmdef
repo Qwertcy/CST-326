@@ -1,0 +1,23 @@
+{
+    "name": "WarcraftChess.Tests.EditMode",
+    "rootNamespace": "",
+    "references": [
+        "WarcraftChess.Runtime.Core",
+        "WarcraftChess.Runtime.Application",
+        "WarcraftChess.Runtime.Rules"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
